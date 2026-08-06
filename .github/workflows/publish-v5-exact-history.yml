@@ -1,16 +1,16 @@
 name: Publish exact v5 history
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/publish-v5-exact-history.yml
+  workflow_dispatch:
+  issues:
+    types: [opened]
 
 permissions:
   contents: write
 
 jobs:
   publish:
+    if: github.event_name == 'workflow_dispatch' || github.event.issue.title == 'publish-v5-exact-history'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout bootstrap branch
