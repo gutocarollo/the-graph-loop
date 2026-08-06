@@ -2,15 +2,14 @@ name: Publish exact v5 history
 
 on:
   workflow_dispatch:
-  issues:
-    types: [opened]
+  schedule:
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
 
 jobs:
   publish:
-    if: github.event_name == 'workflow_dispatch' || github.event.issue.title == 'publish-v5-exact-history'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout bootstrap branch
