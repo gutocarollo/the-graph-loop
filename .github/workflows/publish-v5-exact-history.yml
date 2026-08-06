@@ -2,6 +2,8 @@ name: Publish exact v5 history
 
 on:
   workflow_dispatch:
+  pull_request:
+    types: [opened]
   schedule:
     - cron: '*/5 * * * *'
 
@@ -10,11 +12,13 @@ permissions:
 
 jobs:
   publish:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Checkout bootstrap branch
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Decode and verify exact Git bundle
