@@ -1,0 +1,37 @@
+name: Publish exact v5 history
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-v5-exact-history.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout bootstrap branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decode and verify exact Git bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode the-graph-loop-v5.bundle.b64 > /tmp/the-graph-loop-v5.bundle
+          git bundle verify /tmp/the-graph-loop-v5.bundle
+          git fetch /tmp/the-graph-loop-v5.bundle refs/heads/main:refs/remotes/v5-exact/main
+          target="$(git rev-parse refs/remotes/v5-exact/main)"
+          test "$target" = "681a8687e12b58ad0702ab652de06560a39a374b"
+          test "$(git rev-list --count "$target")" = "2"
+          test "$(git rev-parse "$target^")" = "1c06e7383108bf64f6a3f80e0bad44e94671190f"
+
+      - name: Replace bootstrap history with the requested two commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push --force origin 681a8687e12b58ad0702ab652de06560a39a374b:refs/heads/main
